@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	ccloud "github.com/cgroschupp/go-client-confluent-cloud/confluentcloud"
@@ -37,7 +38,7 @@ func apiKeyResource() *schema.Resource {
 				Description: "Logical Cluster ID List to create API Key",
 			},
 			"user_id": {
-				Type:        schema.TypeInt,
+				Type:        schema.TypeString,
 				Optional:    true,
 				ForceNew:    true,
 				Description: "User ID",
@@ -73,7 +74,12 @@ func apiKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{})
 	clusterID := d.Get("cluster_id").(string)
 	logicalClusters := d.Get("logical_clusters").([]interface{})
 	accountID := d.Get("environment_id").(string)
-	userID := d.Get("user_id").(int)
+
+	userID := 0
+	if num, err := strconv.Atoi(d.Get("user_id").(string)); err == nil {
+		userID = num
+	}
+
 	description := d.Get("description").(string)
 
 	logicalClustersReq := []ccloud.LogicalCluster{}
